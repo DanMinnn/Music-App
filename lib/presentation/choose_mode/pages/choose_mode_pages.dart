@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:music/common/widgets/button/basic_app_button.dart';
 import 'package:music/core/configs/assets/app_images.dart';
 import 'package:music/core/configs/assets/app_vectors.dart';
+import 'package:music/presentation/auth/pages/signup_or_signin.dart';
 import 'package:music/presentation/choose_mode/bloc/theme_cubit.dart';
 
 class ChooseModePages extends StatelessWidget {
@@ -140,7 +141,16 @@ class ChooseModePages extends StatelessWidget {
                 SizedBox(
                   height: 71,
                 ),
-                BasicAppButton(onPressed: () {}, title: 'Continue')
+                BasicAppButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SignupOrSignin(),
+                        ),
+                      );
+                    },
+                    title: 'Continue')
               ],
             ),
           ),
