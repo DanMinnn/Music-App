@@ -73,6 +73,12 @@ class SignUp extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
                     (r) {
+                      var snackBar = SnackBar(
+                        content: Text(r),
+                        behavior: SnackBarBehavior.floating,
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (context) => RootPage()),
