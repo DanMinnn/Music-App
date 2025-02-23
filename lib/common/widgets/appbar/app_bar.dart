@@ -4,8 +4,10 @@ import 'package:music/common/helper/is_dark.dart';
 class BasicAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? title;
   final bool hideBack;
+  final Widget? action;
 
-  const BasicAppBar({super.key, this.title, this.hideBack = false});
+  const BasicAppBar(
+      {super.key, this.title, this.hideBack = false, this.action});
 
   @override
   Widget build(BuildContext context) {
@@ -14,6 +16,9 @@ class BasicAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       title: title ?? Text(''),
       centerTitle: true,
+      actions: [
+        action ?? Text(''),
+      ],
       leading: hideBack
           ? null
           : IconButton(

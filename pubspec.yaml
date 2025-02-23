@@ -23,6 +23,7 @@ dependencies:
   firebase_auth:
   firebase_cloud_firestore:
   cloud_firestore:
+  just_audio:
 
   get_it:
 
