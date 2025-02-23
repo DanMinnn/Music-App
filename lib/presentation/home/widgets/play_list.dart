@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music/common/helper/is_dark.dart';
+import 'package:music/common/widgets/favorite_button/favorite_button.dart';
 import 'package:music/core/configs/theme/app_colors.dart';
 import 'package:music/domain/entities/song/song.dart';
 import 'package:music/presentation/home/bloc/playlist_songs_cubit.dart';
@@ -124,11 +125,7 @@ class PlayListSongs extends StatelessWidget {
                     SizedBox(
                       width: 20,
                     ),
-                    Icon(
-                      Icons.favorite,
-                      size: 24,
-                      color: AppColors.darkGrey,
-                    ),
+                    FavoriteButton(songEntity: songs[index]),
                   ],
                 )
               ],

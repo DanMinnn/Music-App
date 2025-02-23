@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music/common/widgets/appbar/app_bar.dart';
+import 'package:music/common/widgets/favorite_button/favorite_button.dart';
 import 'package:music/core/configs/constant/app_urls.dart';
 import 'package:music/core/configs/theme/app_colors.dart';
 import 'package:music/domain/entities/song/song.dart';
@@ -70,37 +71,36 @@ class SongPlayer extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  songEntity.title,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 20,
-                  ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                songEntity.title,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 20,
                 ),
-                SizedBox(
-                  height: 6,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(
+                height: 6,
+              ),
+              Text(
+                songEntity.artist,
+                style: TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontSize: 20,
                 ),
-                Text(
-                  songEntity.artist,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 20,
-                  ),
-                ),
-              ],
-            )
-          ],
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
-        Icon(
-          Icons.favorite_border_outlined,
-          size: 35,
-          color: AppColors.darkGrey,
-        ),
+        SizedBox(width: 16),
+        FavoriteButton(songEntity: songEntity),
       ],
     );
   }

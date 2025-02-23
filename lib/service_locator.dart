@@ -7,8 +7,10 @@ import 'package:music/domain/repository/auth/auth.dart';
 import 'package:music/domain/repository/song/song.dart';
 import 'package:music/domain/usecases/auth/signin_use_case.dart';
 import 'package:music/domain/usecases/auth/signup_use_case.dart';
+import 'package:music/domain/usecases/song/add_or_remove_favorites_song.dart';
 import 'package:music/domain/usecases/song/get_news_song.dart';
 import 'package:music/domain/usecases/song/get_playlist_song.dart';
+import 'package:music/domain/usecases/song/is_favorites_song.dart';
 
 final sl = GetIt.instance;
 
@@ -23,4 +25,8 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<SignInUseCase>(SignInUseCase());
   sl.registerSingleton<GetNewsSongUseCase>(GetNewsSongUseCase());
   sl.registerSingleton<GetPlaylistSongUsecase>(GetPlaylistSongUsecase());
+
+  sl.registerSingleton<AddOrRemoveFavoritesSongUseCase>(
+      AddOrRemoveFavoritesSongUseCase());
+  sl.registerSingleton<IsFavoritesSongUseCase>(IsFavoritesSongUseCase());
 }
