@@ -7,6 +7,7 @@ import 'package:music/core/configs/assets/app_vectors.dart';
 import 'package:music/core/configs/theme/app_colors.dart';
 import 'package:music/presentation/home/widgets/news_song.dart';
 import 'package:music/presentation/home/widgets/play_list.dart';
+import 'package:music/presentation/profile/pages/profile_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -35,6 +36,19 @@ class _HomePageState extends State<HomePage>
           AppVectors.logo,
           height: 40,
           width: 40,
+        ),
+        action: IconButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProfilePage(),
+              ),
+            );
+          },
+          icon: Icon(
+            Icons.person,
+          ),
         ),
       ),
       body: SingleChildScrollView(
