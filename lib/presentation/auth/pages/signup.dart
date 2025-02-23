@@ -6,7 +6,7 @@ import 'package:music/core/configs/assets/app_vectors.dart';
 import 'package:music/data/models/auth/create_user_req.dart';
 import 'package:music/domain/usecases/auth/signup_use_case.dart';
 import 'package:music/presentation/auth/pages/signin.dart';
-import 'package:music/presentation/root/pages/root.dart';
+import 'package:music/presentation/home/pages/home.dart';
 import 'package:music/service_locator.dart';
 
 class SignUp extends StatelessWidget {
@@ -81,7 +81,7 @@ class SignUp extends StatelessWidget {
 
                       Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(builder: (context) => RootPage()),
+                          MaterialPageRoute(builder: (context) => HomePage()),
                           (route) => false);
                     },
                   );
