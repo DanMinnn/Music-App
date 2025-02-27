@@ -8,7 +8,6 @@ import 'package:music/firebase_options.dart';
 import 'package:music/presentation/choose_mode/bloc/theme_cubit.dart';
 import 'package:music/presentation/home/pages/home.dart';
 import 'package:music/presentation/mini_player/bloc/mini_player_cubit.dart';
-import 'package:music/presentation/play_songs/bloc/song_player_cubit.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'service_locator.dart';
@@ -38,7 +37,6 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
         providers: [
           BlocProvider(create: (_) => ThemeCubit()),
-          BlocProvider<SongPlayerCubit>(create: (_) => SongPlayerCubit()),
           BlocProvider<MiniPlayerCubit>(create: (_) => MiniPlayerCubit()),
         ],
         child: BlocBuilder<ThemeCubit, ThemeMode>(

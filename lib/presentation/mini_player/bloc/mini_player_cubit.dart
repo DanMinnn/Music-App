@@ -81,6 +81,19 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     //emit(SongPlayerLoaded());
   }
 
+  // Phương thức để cung cấp thông tin hiện tại cho SongPlayerCubit
+  Map<String, dynamic> getCurrentPlaybackInfo() {
+    return {
+      'song': currentSong,
+      'isPlaying': audioPlayer.playing,
+      'position': songPosition,
+      'duration': songDuration,
+      'audioUrl': currentSong != null
+          ? '${AppURLs.songsFireStorage}${Uri.encodeFull('${currentSong!.artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} - ${currentSong!.title}')}.mp3?${AppURLs.mediaAlt}'
+          : null
+    };
+  }
+
   @override
   Future<void> close() {
     audioPlayer.dispose();

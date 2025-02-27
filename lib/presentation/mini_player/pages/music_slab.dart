@@ -4,6 +4,7 @@ import 'package:music/core/configs/theme/app_colors.dart';
 import 'package:music/domain/entities/song/song.dart';
 import 'package:music/presentation/mini_player/bloc/mini_player_cubit.dart';
 import 'package:music/presentation/mini_player/bloc/mini_player_state.dart';
+import 'package:music/presentation/play_songs/pages/song_player.dart';
 import 'package:palette_generator/palette_generator.dart';
 
 import '../../../core/configs/constant/app_urls.dart';
@@ -65,113 +66,122 @@ class _MusicSlabState extends State<MusicSlab> {
         final progress = duration > 0 ? position / duration : 0.0;
         final isPlaying = cubit.audioPlayer.playing;
 
-        return Stack(
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width,
-              height: 60,
-              padding: EdgeInsets.all(5),
-              margin: EdgeInsets.only(bottom: 2),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-                color: dominantColor,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          image: DecorationImage(
-                            fit: BoxFit.fitWidth,
-                            image: NetworkImage(urlImage),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            widget.songEntity.title,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        SongPlayer(songEntity: widget.songEntity)));
+          },
+          child: Stack(
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: 60,
+                padding: EdgeInsets.all(5),
+                margin: EdgeInsets.only(bottom: 2),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: dominantColor.withOpacity(0.8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            image: DecorationImage(
+                              fit: BoxFit.fitWidth,
+                              image: NetworkImage(urlImage),
                             ),
                           ),
-                          Text(
-                            widget.songEntity.artist,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              widget.songEntity.title,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
+                            Text(
+                              widget.songEntity.artist,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            cubit.playOrPauseSong();
+                            /*if (isComplete) {
+                                cubit.seekToStart();
+                                cubit.playSong();
+                              } else {
+                                cubit.playOrPauseSong();
+                              }*/
+                          },
+                          icon: Icon(
+                            isPlaying ? Icons.pause : Icons.play_arrow,
+                            color: AppColors.darkGrey,
+                            size: 24,
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          cubit.playOrPauseSong();
-                          /*if (isComplete) {
-                              cubit.seekToStart();
-                              cubit.playSong();
-                            } else {
-                              cubit.playOrPauseSong();
-                            }*/
-                        },
-                        icon: Icon(
-                          isPlaying ? Icons.pause : Icons.play_arrow,
-                          color: AppColors.darkGrey,
-                          size: 24,
                         ),
-                      ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.favorite,
-                          size: 24,
-                          color: AppColors.darkGrey,
+                        IconButton(
+                          onPressed: () {},
+                          icon: Icon(
+                            Icons.favorite,
+                            size: 24,
+                            color: AppColors.darkGrey,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              bottom: 0,
-              left: 8,
-              child: Container(
-                height: 5,
-                width: MediaQuery.of(context).size.width - 32,
-                decoration: BoxDecoration(
-                  color: AppColors.darkGrey,
-                  borderRadius: BorderRadius.circular(4),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            ),
-            Positioned(
-              bottom: 0,
-              left: 8,
-              child: Container(
-                height: 5,
-                width: (MediaQuery.of(context).size.width - 32) * progress,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4),
+              Positioned(
+                bottom: 0,
+                left: 8,
+                child: Container(
+                  height: 5,
+                  width: MediaQuery.of(context).size.width - 8,
+                  decoration: BoxDecoration(
+                    color: AppColors.darkGrey,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
               ),
-            ),
-          ],
+              Positioned(
+                bottom: 0,
+                left: 8,
+                child: Container(
+                  height: 5,
+                  width: (MediaQuery.of(context).size.width - 8) * progress,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+            ],
+          ),
         );
       },
     );

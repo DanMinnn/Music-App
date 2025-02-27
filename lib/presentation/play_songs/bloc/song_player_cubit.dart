@@ -1,48 +1,51 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:music/presentation/mini_player/bloc/mini_player_cubit.dart';
 import 'package:music/presentation/play_songs/bloc/song_player_state.dart';
 
+import '../../../domain/entities/song/song.dart';
+
 class SongPlayerCubit extends Cubit<SongPlayerState> {
-  AudioPlayer audioPlayer = AudioPlayer();
-  Duration songDuration = Duration.zero;
-  Duration songPosition = Duration.zero;
+  final MiniPlayerCubit miniPlayerCubit;
+  Timer? _syncTime;
 
-  SongPlayerCubit() : super(SongPlayerLoading()) {
-    audioPlayer.positionStream.listen((position) {
-      songPosition = position;
-      updateSongPlayer();
-    });
-
-    audioPlayer.durationStream.listen((duration) {
-      songDuration = duration!;
+  SongPlayerCubit({required this.miniPlayerCubit})
+      : super(SongPlayerLoading()) {
+    _syncTime = Timer.periodic(Duration(milliseconds: 200), (_) {
+      _syncWithMiniPlayer();
     });
   }
 
-  void updateSongPlayer() {
-    emit(SongPlayerLoaded());
-  }
+  void _syncWithMiniPlayer() {
+    final info = miniPlayerCubit.getCurrentPlaybackInfo();
+    final currentSong = info['song'] as SongEntity?;
 
-  Future<void> loadSong(String url) async {
-    try {
-      await audioPlayer.setUrl(url);
-      emit(SongPlayerLoaded());
-    } catch (e) {
-      emit(SongPlayerFailure());
+    if (currentSong != null) {
+      emit(
+        SongNowPlayingVisible(
+          currentSong,
+          info['isPlaying'] as bool,
+          info['position'] as Duration,
+          info['duration'] as Duration,
+        ),
+      );
     }
   }
 
   void playOrPauseSong() {
-    if (audioPlayer.playing) {
-      audioPlayer.stop();
-    } else {
-      audioPlayer.play();
-    }
-    emit(SongPlayerLoaded());
+    miniPlayerCubit.playOrPauseSong();
+    _syncWithMiniPlayer();
+  }
+
+  void seekTo(Duration position) {
+    miniPlayerCubit.audioPlayer.seek(position);
+    _syncWithMiniPlayer();
   }
 
   @override
   Future<void> close() {
-    audioPlayer.dispose();
+    _syncTime?.cancel();
     return super.close();
   }
 }
