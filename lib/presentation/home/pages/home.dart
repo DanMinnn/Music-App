@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:music/common/helper/is_dark.dart';
 import 'package:music/common/widgets/appbar/app_bar.dart';
@@ -7,6 +8,9 @@ import 'package:music/core/configs/assets/app_vectors.dart';
 import 'package:music/core/configs/theme/app_colors.dart';
 import 'package:music/presentation/home/widgets/news_song.dart';
 import 'package:music/presentation/home/widgets/play_list.dart';
+import 'package:music/presentation/mini_player/bloc/mini_player_cubit.dart';
+import 'package:music/presentation/mini_player/bloc/mini_player_state.dart';
+import 'package:music/presentation/mini_player/pages/music_slab.dart';
 import 'package:music/presentation/profile/pages/profile_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,6 +24,8 @@ class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  //late SongEntity songEntity;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -29,52 +35,59 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: BasicAppBar(
-        hideBack: true,
-        title: SvgPicture.asset(
-          AppVectors.logo,
-          height: 40,
-          width: 40,
-        ),
-        action: IconButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ProfilePage(),
-              ),
-            );
-          },
-          icon: Icon(
-            Icons.person,
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _topHomeCard(),
-            _tabs(),
-            SizedBox(
-              height: 260,
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  NewsSong(),
-                  Container(),
-                  Container(),
-                  Container(),
-                ],
-              ),
-            ),
-            SizedBox(
+    return BlocBuilder<MiniPlayerCubit, MiniPlayerState>(
+      builder: (context, state) {
+        return Scaffold(
+          appBar: BasicAppBar(
+            hideBack: true,
+            title: SvgPicture.asset(
+              AppVectors.logo,
               height: 40,
+              width: 40,
             ),
-            PlayListSongs(),
-          ],
-        ),
-      ),
+            action: IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfilePage(),
+                  ),
+                );
+              },
+              icon: Icon(
+                Icons.person,
+              ),
+            ),
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                _topHomeCard(),
+                _tabs(),
+                SizedBox(
+                  height: 260,
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      NewsSong(),
+                      Container(),
+                      Container(),
+                      Container(),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 40,
+                ),
+                PlayListSongs(),
+              ],
+            ),
+          ),
+          bottomNavigationBar: state is MiniPlayerVisible
+              ? MusicSlab(songEntity: state.songEntity)
+              : SizedBox(),
+        );
+      },
     );
   }
 

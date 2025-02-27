@@ -24,6 +24,7 @@ dependencies:
   firebase_cloud_firestore:
   cloud_firestore:
   just_audio:
+  palette_generator: ^0.3.3+6
 
   get_it:
 

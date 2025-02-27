@@ -6,7 +6,7 @@ import 'package:music/core/configs/theme/app_colors.dart';
 import 'package:music/domain/entities/song/song.dart';
 import 'package:music/presentation/home/bloc/playlist_songs_cubit.dart';
 import 'package:music/presentation/home/bloc/playlist_songs_state.dart';
-import 'package:music/presentation/play_songs/pages/song_player.dart';
+import 'package:music/presentation/mini_player/bloc/mini_player_cubit.dart';
 
 class PlayListSongs extends StatelessWidget {
   const PlayListSongs({super.key});
@@ -62,14 +62,15 @@ class PlayListSongs extends StatelessWidget {
         itemBuilder: (context, index) {
           return GestureDetector(
             onTap: () {
-              Navigator.push(
+              /*Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => SongPlayer(
                     songEntity: songs[index],
                   ),
                 ),
-              );
+              );*/
+              context.read<MiniPlayerCubit>().showPlayer(songs[index]);
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
