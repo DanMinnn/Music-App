@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
@@ -17,8 +19,25 @@ class PlayListSongs extends StatefulWidget {
   State<PlayListSongs> createState() => _PlayListSongsState();
 }
 
-class _PlayListSongsState extends State<PlayListSongs> {
+class _PlayListSongsState extends State<PlayListSongs>
+    with SingleTickerProviderStateMixin {
   bool isPress = true;
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    )..repeat(reverse: true); // Lặp lại sóng
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -160,20 +179,29 @@ class _PlayListSongsState extends State<PlayListSongs> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              (isSameSong && isPlaying)
-                                  ? Text(
-                                      songs[index].title,
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.primary),
-                                    )
-                                  : Text(
-                                      songs[index].title,
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600),
-                                    ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (isSameSong && isPlaying)
+                                    _buildWaveAnimation(),
+                                  if (isSameSong && isPlaying)
+                                    SizedBox(width: 8),
+                                  (isSameSong && isPlaying)
+                                      ? Text(
+                                          songs[index].title,
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: AppColors.primary),
+                                        )
+                                      : Text(
+                                          songs[index].title,
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                ],
+                              ),
                               SizedBox(
                                 height: 10,
                               ),
@@ -211,5 +239,31 @@ class _PlayListSongsState extends State<PlayListSongs> {
               height: 10,
             ),
         itemCount: songs.length);
+  }
+
+  Widget _buildWaveAnimation() {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Row(
+          children: List.generate(5, (index) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 1),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                height: 8 +
+                    Random().nextInt(10) *
+                        _controller.value, // Dao động ngẫu nhiên
+                width: 4,
+                decoration: BoxDecoration(
+                  color: Colors.green, // Màu sóng
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            );
+          }),
+        );
+      },
+    );
   }
 }
