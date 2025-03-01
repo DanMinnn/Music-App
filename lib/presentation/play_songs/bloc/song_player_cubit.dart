@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music/presentation/mini_player/bloc/mini_player_cubit.dart';
 import 'package:music/presentation/play_songs/bloc/song_player_state.dart';
@@ -28,6 +29,10 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
           info['isPlaying'] as bool,
           info['position'] as Duration,
           info['duration'] as Duration,
+          info['isRepeat'] as bool,
+          info['isShuffle'] as bool,
+          info['dominantColor'] as Color,
+          info['urlImage'] as String,
         ),
       );
     }
@@ -40,6 +45,48 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
 
   void seekTo(Duration position) {
     miniPlayerCubit.audioPlayer.seek(position);
+    _syncWithMiniPlayer();
+  }
+
+  void repeatSong() {
+    miniPlayerCubit.toggleRepeat();
+    _syncWithMiniPlayer();
+  }
+
+  void shuffleSong() {
+    miniPlayerCubit.toggleShuffle();
+    _syncWithMiniPlayer();
+  }
+
+  void playNextSong() {
+    final currentState = state;
+    if (currentState is SongNowPlayingVisible) {
+      emit(SongPlayerLoading());
+    }
+
+    miniPlayerCubit.playNextSong();
+
+    final info = miniPlayerCubit.getCurrentPlaybackInfo();
+    final newSong = info['song'] as SongEntity?;
+
+    if (newSong != null) {
+      emit(
+        SongNowPlayingVisible(
+          newSong,
+          true,
+          Duration.zero,
+          info['duration'] as Duration,
+          info['isRepeat'] as bool,
+          info['isShuffle'] as bool,
+          info['dominantColor'] as Color,
+          info['urlImage'] as String,
+        ),
+      );
+    }
+  }
+
+  void playPreviousSong() {
+    miniPlayerCubit.playPreviousSong();
     _syncWithMiniPlayer();
   }
 

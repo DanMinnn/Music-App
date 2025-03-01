@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:music/common/helper/is_dark.dart';
 import 'package:music/common/widgets/favorite_button/favorite_button.dart';
 import 'package:music/core/configs/theme/app_colors.dart';
@@ -8,8 +9,15 @@ import 'package:music/presentation/home/bloc/playlist_songs_cubit.dart';
 import 'package:music/presentation/home/bloc/playlist_songs_state.dart';
 import 'package:music/presentation/mini_player/bloc/mini_player_cubit.dart';
 
-class PlayListSongs extends StatelessWidget {
+class PlayListSongs extends StatefulWidget {
   const PlayListSongs({super.key});
+
+  @override
+  State<PlayListSongs> createState() => _PlayListSongsState();
+}
+
+class _PlayListSongsState extends State<PlayListSongs> {
+  bool isPress = true;
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +30,8 @@ class PlayListSongs extends StatelessWidget {
               return Center(child: CircularProgressIndicator());
             }
             if (state is PlaylistSongLoaded) {
+              final miniPlayerCubit = context.read<MiniPlayerCubit>();
+
               return Padding(
                 padding: EdgeInsets.symmetric(vertical: 40, horizontal: 16),
                 child: Column(
@@ -34,11 +44,61 @@ class PlayListSongs extends StatelessWidget {
                           style: TextStyle(
                               fontWeight: FontWeight.w600, fontSize: 20),
                         ),
-                        Text(
-                          'See More',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w400, fontSize: 12),
-                        ),
+                        StreamBuilder<PlayerState>(
+                          stream: miniPlayerCubit.audioPlayer.playerStateStream,
+                          builder: (context, snapshot) {
+                            final playerState = snapshot.data;
+                            final isPlaying = playerState?.playing ?? false;
+                            final isSameSong =
+                                miniPlayerCubit.currentSong?.songId ==
+                                    state.songs.first.songId;
+                            final isProcessing = playerState?.processingState ==
+                                    ProcessingState.loading ||
+                                playerState?.processingState ==
+                                    ProcessingState.buffering;
+
+                            return GestureDetector(
+                              onTap: () async {
+                                if (isProcessing)
+                                  return; // Prevent action during loading
+
+                                if (isSameSong) {
+                                  miniPlayerCubit.showPlayer(
+                                    state.songs.first,
+                                    isCheckPlaying: isPlaying,
+                                  );
+                                } else {
+                                  await miniPlayerCubit.showPlayer(
+                                    state.songs.first,
+                                    playlist: state.songs,
+                                    index: 0,
+                                  );
+                                }
+                              },
+                              child: Container(
+                                margin: EdgeInsets.only(right: 10),
+                                height: 30,
+                                width: 30,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: AppColors.primary,
+                                ),
+                                child: Icon(
+                                  isProcessing
+                                      ? Icons.hourglass_empty
+                                      : (isPlaying && isSameSong
+                                          ? Icons.pause
+                                          : Icons.play_arrow),
+                                  size: 20,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            );
+                            return Center(
+                              child: Text('No playlist available'),
+                            );
+                          },
+                        )
                       ],
                     ),
                     SizedBox(

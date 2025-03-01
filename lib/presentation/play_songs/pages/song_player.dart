@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music/common/widgets/appbar/app_bar.dart';
 import 'package:music/common/widgets/favorite_button/favorite_button.dart';
-import 'package:music/core/configs/constant/app_urls.dart';
+import 'package:music/core/configs/assets/app_images.dart';
 import 'package:music/core/configs/theme/app_colors.dart';
 import 'package:music/domain/entities/song/song.dart';
 import 'package:music/presentation/mini_player/bloc/mini_player_cubit.dart';
 import 'package:music/presentation/play_songs/bloc/song_player_cubit.dart';
 import 'package:music/presentation/play_songs/bloc/song_player_state.dart';
-import 'package:palette_generator/palette_generator.dart';
 
 class SongPlayer extends StatefulWidget {
   final SongEntity songEntity;
@@ -20,8 +19,9 @@ class SongPlayer extends StatefulWidget {
 }
 
 class _SongPlayerState extends State<SongPlayer> {
-  late String urlImage;
+  /*late String urlImage;
   Color dominantColor = Colors.blueGrey;
+
   @override
   void initState() {
     super.initState();
@@ -47,7 +47,7 @@ class _SongPlayerState extends State<SongPlayer> {
     setState(() {
       dominantColor = paletteGenerator.dominantColor?.color ?? Colors.blueGrey;
     });
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -55,62 +55,63 @@ class _SongPlayerState extends State<SongPlayer> {
       create: (context) => SongPlayerCubit(
         miniPlayerCubit: context.read<MiniPlayerCubit>(),
       ),
-      child: Scaffold(
-        backgroundColor: dominantColor.withOpacity(0.8),
-        appBar: BasicAppBar(
-          title: Text(
-            'Now playing',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          action: Icon(Icons.more_vert_rounded),
-        ),
-        body: BlocBuilder<SongPlayerCubit, SongPlayerState>(
-          builder: (context, state) {
-            if (state is SongNowPlayingVisible) {
-              return SingleChildScrollView(
+      child: BlocBuilder<SongPlayerCubit, SongPlayerState>(
+        builder: (context, state) {
+          if (state is SongNowPlayingVisible) {
+            return Scaffold(
+              backgroundColor: state.dominantColor.withOpacity(0.8),
+              appBar: BasicAppBar(
+                title: Text(
+                  'Now playing',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                action: Icon(Icons.more_vert_rounded),
+              ),
+              body: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(
                   horizontal: 30,
                   vertical: 16,
                 ),
                 child: Column(
                   children: [
-                    _songCover(context),
+                    _songCover(context, state),
                     SizedBox(
                       height: 17,
                     ),
-                    _songDetail(),
-                    SizedBox(
-                      height: 17,
-                    ),
+                    _songDetail(state),
+                    SizedBox(height: 5),
                     _songPlayer(context, state),
                   ],
                 ),
-              );
-            }
-            return CircularProgressIndicator();
-          },
-        ),
+              ),
+            );
+          }
+          return Align(
+            alignment: Alignment.center,
+            child: CircularProgressIndicator(),
+          );
+        },
       ),
     );
   }
 
-  Widget _songCover(BuildContext context) {
+  Widget _songCover(BuildContext context, SongNowPlayingVisible state) {
     return Container(
       height: MediaQuery.of(context).size.height / 2,
       decoration: BoxDecoration(
         image: DecorationImage(
           fit: BoxFit.cover,
-          image: NetworkImage(urlImage),
+          image: NetworkImage(state.urlImage),
         ),
         borderRadius: BorderRadius.circular(30),
       ),
     );
   }
 
-  Widget _songDetail() {
+  Widget _songDetail(SongNowPlayingVisible state) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -119,7 +120,7 @@ class _SongPlayerState extends State<SongPlayer> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.songEntity.title,
+                state.songEntity.title,
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 20,
@@ -131,10 +132,10 @@ class _SongPlayerState extends State<SongPlayer> {
                 height: 6,
               ),
               Text(
-                widget.songEntity.artist,
+                state.songEntity.artist,
                 style: TextStyle(
                   fontWeight: FontWeight.w400,
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -143,7 +144,7 @@ class _SongPlayerState extends State<SongPlayer> {
           ),
         ),
         SizedBox(width: 16),
-        FavoriteButton(songEntity: widget.songEntity),
+        FavoriteButton(songEntity: state.songEntity),
       ],
     );
   }
@@ -153,53 +154,109 @@ class _SongPlayerState extends State<SongPlayer> {
 
     return Column(
       children: [
-        Slider(
-          value: state.position.inSeconds.toDouble(),
-          min: 0.0,
-          max: state.duration.inSeconds > 0
-              ? state.duration.inSeconds.toDouble()
-              : 1.0,
-          onChanged: (value) {
-            cubit.seekTo(Duration(seconds: value.toInt()));
-          },
-          activeColor: Colors.white,
-          inactiveColor: AppColors.darkGrey,
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              formatDuration(state.position),
-            ),
-            Text(
-              formatDuration(state.duration),
-            ),
-          ],
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        GestureDetector(
-          onTap: () {
-            cubit.playOrPauseSong();
-          },
-          child: Container(
-            height: 60,
-            width: 60,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.primary,
-            ),
-            child: Icon(
-              state.isPlaying ? Icons.pause : Icons.play_arrow,
-              size: 40,
-            ),
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            activeTrackColor: Colors.white,
+            inactiveTrackColor: Color(0xFF777777),
+            trackShape: RoundedRectSliderTrackShape(),
+            trackHeight: 3.0,
+            thumbColor: Colors.white,
+          ),
+          child: Slider(
+            value: state.position.inSeconds.toDouble(),
+            min: 0.0,
+            max: state.duration.inSeconds > 0
+                ? state.duration.inSeconds.toDouble()
+                : 1.0,
+            onChanged: (value) {
+              cubit.seekTo(Duration(seconds: value.toInt()));
+            },
           ),
         ),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 13),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                formatDuration(state.position),
+                style: TextStyle(fontSize: 12),
+              ),
+              Text(
+                '-${formatDuration(state.duration - state.position)}',
+                style: TextStyle(fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        _actionSong(context, state),
       ],
+    );
+  }
+
+  Widget _actionSong(BuildContext context, SongNowPlayingVisible state) {
+    final cubit = context.read<SongPlayerCubit>();
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 40),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            onPressed: () {
+              cubit.repeatSong();
+            },
+            icon: state.isRepeat
+                ? Image.asset(
+                    AppImages.repeatSong,
+                    color: AppColors.primary,
+                  )
+                : Image.asset(AppImages.repeatSong),
+          ),
+          IconButton(
+            onPressed: () {
+              cubit.playPreviousSong();
+            },
+            icon: Image.asset(AppImages.previousSong),
+          ),
+          GestureDetector(
+            onTap: () {
+              cubit.playOrPauseSong();
+            },
+            child: Container(
+              height: 60,
+              width: 60,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.primary,
+              ),
+              child: Icon(
+                state.isPlaying ? Icons.pause : Icons.play_arrow,
+                size: 40,
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: () {
+              cubit.playNextSong();
+            },
+            icon: Image.asset(AppImages.nextSong),
+          ),
+          IconButton(
+            onPressed: () {
+              cubit.shuffleSong();
+            },
+            icon: state.isShuffle
+                ? Image.asset(
+                    AppImages.shuffleSong,
+                    color: AppColors.primary,
+                  )
+                : Image.asset(AppImages.shuffleSong),
+          ),
+        ],
+      ),
     );
   }
 

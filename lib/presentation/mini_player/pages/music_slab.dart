@@ -5,9 +5,6 @@ import 'package:music/domain/entities/song/song.dart';
 import 'package:music/presentation/mini_player/bloc/mini_player_cubit.dart';
 import 'package:music/presentation/mini_player/bloc/mini_player_state.dart';
 import 'package:music/presentation/play_songs/pages/song_player.dart';
-import 'package:palette_generator/palette_generator.dart';
-
-import '../../../core/configs/constant/app_urls.dart';
 
 class MusicSlab extends StatefulWidget {
   final SongEntity songEntity;
@@ -19,7 +16,7 @@ class MusicSlab extends StatefulWidget {
 }
 
 class _MusicSlabState extends State<MusicSlab> {
-  Color dominantColor = Colors.redAccent;
+  /* Color dominantColor = Colors.redAccent;
   late String urlImage;
 
   @override
@@ -47,19 +44,19 @@ class _MusicSlabState extends State<MusicSlab> {
     setState(() {
       dominantColor = paletteGenerator.dominantColor?.color ?? Colors.redAccent;
     });
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MiniPlayerCubit, MiniPlayerState>(
       builder: (context, state) {
-        /*if (state is SongPlayerLoading) {
-          return CircularProgressIndicator();
-        }
-        if (state is SongPlayerLoaded) {
+        Color dominantColor = Colors.redAccent;
+        String urlImage = '';
 
+        if (state is MiniPlayerVisible) {
+          dominantColor = state.dominantColor;
+          urlImage = state.urlImage;
         }
-        return SizedBox();*/
         final cubit = context.read<MiniPlayerCubit>();
         final position = cubit.songPosition.inMilliseconds.toDouble();
         final duration = cubit.songDuration.inMilliseconds.toDouble();
@@ -79,10 +76,10 @@ class _MusicSlabState extends State<MusicSlab> {
               Container(
                 width: MediaQuery.of(context).size.width,
                 height: 60,
-                padding: EdgeInsets.all(5),
-                margin: EdgeInsets.only(bottom: 2),
+                padding: EdgeInsets.fromLTRB(10, 0, 5, 5),
+                margin: EdgeInsets.fromLTRB(6, 0, 12, 2),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(12),
                   color: dominantColor.withOpacity(0.8),
                 ),
                 child: Row(
@@ -92,10 +89,11 @@ class _MusicSlabState extends State<MusicSlab> {
                       children: [
                         Container(
                           width: 40,
+                          height: 40,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(8),
                             image: DecorationImage(
-                              fit: BoxFit.fitWidth,
+                              fit: BoxFit.cover,
                               image: NetworkImage(urlImage),
                             ),
                           ),
@@ -158,10 +156,10 @@ class _MusicSlabState extends State<MusicSlab> {
               ),
               Positioned(
                 bottom: 0,
-                left: 8,
+                left: 15,
                 child: Container(
                   height: 5,
-                  width: MediaQuery.of(context).size.width - 8,
+                  width: MediaQuery.of(context).size.width - 28,
                   decoration: BoxDecoration(
                     color: AppColors.darkGrey,
                     borderRadius: BorderRadius.circular(4),
@@ -170,10 +168,10 @@ class _MusicSlabState extends State<MusicSlab> {
               ),
               Positioned(
                 bottom: 0,
-                left: 8,
+                left: 15,
                 child: Container(
                   height: 5,
-                  width: (MediaQuery.of(context).size.width - 8) * progress,
+                  width: (MediaQuery.of(context).size.width - 28) * progress,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(4),
