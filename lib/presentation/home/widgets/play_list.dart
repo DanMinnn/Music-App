@@ -147,32 +147,10 @@ class _PlayListSongsState extends State<PlayListSongs> {
                             height: 60,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.network(
-                                '${AppURLs.coversFireStorage}${Uri.encodeFull('${songs[index].artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} '
-                                    '- ${songs[index].title}')}.jpg?${AppURLs.mediaAlt}',
-                                fit: BoxFit.cover,
-                                width: 60,
-                                height: 60,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Image.network(
+                              image: DecorationImage(
+                                image: NetworkImage(
                                     '${AppURLs.coversFireStorage}${Uri.encodeFull('${songs[index].artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} '
-                                        '- ${songs[index].title.toLowerCase()}')}.jpg?${AppURLs.mediaAlt}',
-                                    fit: BoxFit.cover,
-                                    width: 60,
-                                    height: 60,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        color: Colors.grey,
-                                        child: Center(
-                                            child: Icon(Icons.broken_image,
-                                                color: Colors.white)),
-                                      );
-                                    },
-                                  );
-                                },
+                                        '- ${songs[index].title}')}.jpg?${AppURLs.mediaAlt}'),
                               ),
                             ),
                           ),
