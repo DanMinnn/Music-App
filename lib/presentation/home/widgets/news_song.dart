@@ -62,7 +62,8 @@ class NewsSong extends StatelessWidget {
                       image: DecorationImage(
                         fit: BoxFit.cover,
                         image: NetworkImage(
-                            '${AppURLs.coversFireStorage}${Uri.encodeFull('${songs[index].artist} - ${songs[index].title}')}.jpg?${AppURLs.mediaAlt}'),
+                            '${AppURLs.coversFireStorage}${Uri.encodeFull('${songs[index].artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} '
+                                '- ${songs[index].title}')}.jpg?${AppURLs.mediaAlt}'),
                       ),
                     ),
                     child: Align(
@@ -87,6 +88,7 @@ class NewsSong extends StatelessWidget {
                     ),
                   ),
                 ),
+                /*Text('${AppURLs.coversFireStorage}${songs[index].artist}-${songs[index].title}.jpg?${AppURLs.mediaAlt}'),*/
                 Text(
                   songs[index].title,
                   style: TextStyle(

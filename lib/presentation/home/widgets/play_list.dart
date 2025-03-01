@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:music/common/helper/is_dark.dart';
 import 'package:music/common/widgets/favorite_button/favorite_button.dart';
 import 'package:music/core/configs/theme/app_colors.dart';
 import 'package:music/domain/entities/song/song.dart';
 import 'package:music/presentation/home/bloc/playlist_songs_cubit.dart';
 import 'package:music/presentation/home/bloc/playlist_songs_state.dart';
 import 'package:music/presentation/mini_player/bloc/mini_player_cubit.dart';
+
+import '../../../core/configs/constant/app_urls.dart';
 
 class PlayListSongs extends StatefulWidget {
   const PlayListSongs({super.key});
@@ -94,9 +95,6 @@ class _PlayListSongsState extends State<PlayListSongs> {
                                 ),
                               ),
                             );
-                            return Center(
-                              child: Text('No playlist available'),
-                            );
                           },
                         )
                       ],
@@ -120,78 +118,116 @@ class _PlayListSongsState extends State<PlayListSongs> {
     return ListView.separated(
         shrinkWrap: true,
         itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              /*Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SongPlayer(
-                    songEntity: songs[index],
+          return StreamBuilder<PlayerState>(
+              stream:
+                  context.read<MiniPlayerCubit>().audioPlayer.playerStateStream,
+              builder: (context, snapshot) {
+                final playerState = snapshot.data;
+                final isPlaying = playerState?.playing ?? false;
+                final isSameSong =
+                    context.read<MiniPlayerCubit>().currentSong?.songId ==
+                        songs[index].songId;
+                final isProcessing = playerState?.processingState ==
+                        ProcessingState.loading ||
+                    playerState?.processingState == ProcessingState.buffering;
+
+                return GestureDetector(
+                  onTap: () {
+                    if (isProcessing) return;
+
+                    context.read<MiniPlayerCubit>().showPlayer(songs[index]);
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                '${AppURLs.coversFireStorage}${Uri.encodeFull('${songs[index].artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} '
+                                    '- ${songs[index].title}')}.jpg?${AppURLs.mediaAlt}',
+                                fit: BoxFit.cover,
+                                width: 60,
+                                height: 60,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Image.network(
+                                    '${AppURLs.coversFireStorage}${Uri.encodeFull('${songs[index].artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} '
+                                        '- ${songs[index].title.toLowerCase()}')}.jpg?${AppURLs.mediaAlt}',
+                                    fit: BoxFit.cover,
+                                    width: 60,
+                                    height: 60,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        color: Colors.grey,
+                                        child: Center(
+                                            child: Icon(Icons.broken_image,
+                                                color: Colors.white)),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 25,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              (isSameSong && isPlaying)
+                                  ? Text(
+                                      songs[index].title,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.primary),
+                                    )
+                                  : Text(
+                                      songs[index].title,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                songs[index].artist,
+                                style: TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.w400),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Text(
+                            songs[index]
+                                .duration
+                                .toString()
+                                .replaceAll('.', ':'),
+                            style: TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.w400),
+                          ),
+                          SizedBox(
+                            width: 20,
+                          ),
+                          FavoriteButton(songEntity: songs[index]),
+                        ],
+                      )
+                    ],
                   ),
-                ),
-              );*/
-              context.read<MiniPlayerCubit>().showPlayer(songs[index]);
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      height: 45,
-                      width: 45,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: context.isDarkMode
-                            ? AppColors.darkGrey
-                            : Color(0xFFE6E6E6),
-                      ),
-                      child: Icon(
-                        Icons.play_arrow_rounded,
-                        color: context.isDarkMode
-                            ? Color(0xFF959595)
-                            : Color(0xFF555555),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 25,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          songs[index].title,
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          songs[index].artist,
-                          style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.w400),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text(
-                      songs[index].duration.toString().replaceAll('.', ':'),
-                      style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
-                    ),
-                    SizedBox(
-                      width: 20,
-                    ),
-                    FavoriteButton(songEntity: songs[index]),
-                  ],
-                )
-              ],
-            ),
-          );
+                );
+              });
         },
         separatorBuilder: (context, index) => SizedBox(
               height: 10,

@@ -62,10 +62,23 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     }
   }
 
-  Future<void> loadSong(String url) async {
+  Future<void> loadSong(String url, SongEntity song) async {
     try {
-      await audioPlayer.setUrl(url);
-      await audioPlayer.play();
+      try {
+        await audioPlayer.setUrl(url);
+        await audioPlayer.play();
+      } catch (e) {
+        print("Error loading primary URL ($url): $e");
+        String fallbackUrl =
+            '${AppURLs.songsFireStorage}${Uri.encodeFull('${song.artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} '
+                '- ${song.title.toLowerCase()}')}.mp3?${AppURLs.mediaAlt}';
+        try {
+          await audioPlayer.setUrl(fallbackUrl);
+        } catch (e) {
+          print("Error loading fallback URL ($fallbackUrl): $e");
+          await audioPlayer.stop();
+        }
+      }
     } catch (e) {
       print("Error loading song: $e");
       if (currentSong != null) {
@@ -93,19 +106,35 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
   }
 
   Future<void> updateDominantColor(SongEntity song) async {
-    final imageUrl =
+    final primaryUrl =
         '${AppURLs.coversFireStorage}${Uri.encodeFull('${song.artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} - ${song.title}')}.jpg?${AppURLs.mediaAlt}';
-    currentUrlImage = imageUrl;
+
+    final fallBackUrl =
+        '${AppURLs.coversFireStorage}${Uri.encodeFull('${song.artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} '
+            '- ${song.title.toLowerCase()}')}.jpg?${AppURLs.mediaAlt}';
+
+    currentUrlImage = primaryUrl;
 
     try {
       final PaletteGenerator paletteGenerator =
-          await PaletteGenerator.fromImageProvider(NetworkImage(imageUrl));
+          await PaletteGenerator.fromImageProvider(NetworkImage(primaryUrl));
       dominantColor = paletteGenerator.dominantColor?.color ?? Colors.blueGrey;
       updateSongPlayer();
     } catch (e) {
       print("Error generating palette: $e");
-      dominantColor = Colors.blueGrey;
-      updateSongPlayer();
+
+      try {
+        currentUrlImage = fallBackUrl;
+        final PaletteGenerator paletteGenerator =
+            await PaletteGenerator.fromImageProvider(NetworkImage(fallBackUrl));
+        dominantColor =
+            paletteGenerator.dominantColor?.color ?? Colors.blueGrey;
+        updateSongPlayer();
+      } catch (e) {
+        print("Error with fallback URL ($fallBackUrl): $e");
+        dominantColor = Colors.blueGrey;
+        updateSongPlayer();
+      }
     }
   }
 
@@ -168,7 +197,9 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
 
     // Then load the new song
     loadSong(
-        '${AppURLs.songsFireStorage}${Uri.encodeFull('${song.artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} - ${song.title}')}.mp3?${AppURLs.mediaAlt}');
+        '${AppURLs.songsFireStorage}${Uri.encodeFull('${song.artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} '
+            '- ${song.title}')}.mp3?${AppURLs.mediaAlt}',
+        song);
 
     await audioPlayer.play();
 
@@ -245,7 +276,8 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
 
     loadSong(
         '${AppURLs.songsFireStorage}${Uri.encodeFull('${currentSong!.artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} '
-            '- ${currentSong!.title}')}.mp3?${AppURLs.mediaAlt}');
+            '- ${currentSong!.title}')}.mp3?${AppURLs.mediaAlt}',
+        currentSong!);
   }
 
   Future<void> playPreviousSong() async {
@@ -287,7 +319,8 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
 
     loadSong(
         '${AppURLs.songsFireStorage}${Uri.encodeFull('${currentSong!.artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} '
-            '- ${currentSong!.title}')}.mp3?${AppURLs.mediaAlt}');
+            '- ${currentSong!.title}')}.mp3?${AppURLs.mediaAlt}',
+        currentSong!);
   }
 
   @override
