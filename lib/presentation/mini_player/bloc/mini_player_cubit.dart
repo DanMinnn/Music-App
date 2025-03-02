@@ -93,8 +93,7 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
   }
 
   Future<void> updateDominantColor(SongEntity song) async {
-    final primaryUrl =
-        '${AppURLs.coversFireStorage}${Uri.encodeFull('${song.artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} - ${song.title}')}.jpg?${AppURLs.mediaAlt}';
+    final primaryUrl = AppURLs.urlImage(song);
 
     currentUrlImage = primaryUrl;
 
@@ -168,8 +167,7 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     await updateDominantColor(song);
 
     // Then load the new song
-    loadSong(
-        '${AppURLs.songsFireStorage}${Uri.encodeFull('${song.artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} - ${song.title}')}.mp3?${AppURLs.mediaAlt}');
+    loadSong(AppURLs.urlSong(song));
 
     await audioPlayer.play();
 
@@ -194,10 +192,7 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
       'duration': songDuration,
       'isRepeat': isRepeat,
       'isShuffle': isShuffle,
-      'audioUrl': currentSong != null
-          ? '${AppURLs.songsFireStorage}${Uri.encodeFull('${currentSong!.artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} '
-              '- ${currentSong!.title}')}.mp3?${AppURLs.mediaAlt}'
-          : null,
+      'audioUrl': currentSong != null ? AppURLs.urlSong(currentSong!) : null,
       'dominantColor': dominantColor,
       'urlImage': currentUrlImage,
     };
@@ -244,9 +239,7 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
 
     await updateDominantColor(currentSong!);
 
-    loadSong(
-        '${AppURLs.songsFireStorage}${Uri.encodeFull('${currentSong!.artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} '
-            '- ${currentSong!.title}')}.mp3?${AppURLs.mediaAlt}');
+    loadSong(AppURLs.urlSong(currentSong!));
   }
 
   Future<void> playPreviousSong() async {
@@ -286,9 +279,7 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
 
     await updateDominantColor(currentSong!);
 
-    loadSong(
-        '${AppURLs.songsFireStorage}${Uri.encodeFull('${currentSong!.artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} '
-            '- ${currentSong!.title}')}.mp3?${AppURLs.mediaAlt}');
+    loadSong(AppURLs.urlSong(currentSong!));
   }
 
   @override

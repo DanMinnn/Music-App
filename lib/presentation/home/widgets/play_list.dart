@@ -168,8 +168,7 @@ class _PlayListSongsState extends State<PlayListSongs>
                               borderRadius: BorderRadius.circular(8),
                               image: DecorationImage(
                                 image: NetworkImage(
-                                    '${AppURLs.coversFireStorage}${Uri.encodeFull('${songs[index].artist.replaceAll('\t', ' ').replaceAll(',', ' ,')} '
-                                        '- ${songs[index].title}')}.jpg?${AppURLs.mediaAlt}'),
+                                    AppURLs.urlImage(songs[index])),
                               ),
                             ),
                           ),
